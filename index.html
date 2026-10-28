@@ -175,7 +175,6 @@
     .modal-pane[hidden] { display:none; }
     .modal-exam-meta { margin-top:4px; color:var(--muted); font-size:12px; line-height:1.5; overflow-wrap:anywhere; }
     .day-number.holiday-number { color:#c45b5b; }
-    .day-number.exam-day-number { border:2px solid #d36b6b; border-radius:50%; color:#bd5353; }
     .export-options { display:flex; flex-wrap:wrap; align-items:end; gap:10px; margin:12px 0 4px; padding:14px; background:#faf7f2; border:1px solid var(--border); border-radius:12px; }
     .export-options label { display:flex; flex-direction:column; gap:5px; font-size:12px; color:var(--muted); }
     .export-options input, .export-options select { min-height:36px; }
@@ -518,10 +517,9 @@
         if(dayExams.length) cell.classList.add("exam-day");
         const number=document.createElement("button"); number.type="button"; number.className="day-number"; number.textContent=day; number.setAttribute("aria-label",dateKey+" 일정 보기");
         if(dow===0||dow===6||HOLIDAYS.has(dateKey)) number.classList.add("holiday-number");
-        if(dayExams.length) number.classList.add("exam-day-number");
         cell.addEventListener("click",()=>openModal(dateKey)); cell.appendChild(number);
-        schedules.filter(schedule=>schedule.date===dateKey).forEach(schedule=>{const chip=document.createElement("div");chip.className="schedule-chip";chip.textContent=schedule.task;const subject=getSubject(schedule.subject);if(subject)chip.style.backgroundColor=subject.color;cell.appendChild(chip);});
         dayExams.forEach(exam=>{const chip=document.createElement("button");chip.type="button";chip.className="exam-chip";chip.textContent=exam.subject;const subject=getSubject(exam.subject);chip.style.backgroundColor=subject?subject.color:"#f0d7d7";chip.title=`${exam.subject} 시험 정보 보기`;chip.addEventListener("click",e=>{e.stopPropagation();openExamDetail(exam.id);});cell.appendChild(chip);});
+        schedules.filter(schedule=>schedule.date===dateKey).forEach(schedule=>{const chip=document.createElement("div");chip.className="schedule-chip";chip.textContent=schedule.task;const subject=getSubject(schedule.subject);if(subject)chip.style.backgroundColor=subject.color;cell.appendChild(chip);});
         calendarGrid.appendChild(cell);
       }
       renderExamList();
@@ -790,18 +788,18 @@
           ctx.fillStyle = (dow === 0 || dow === 6 || HOLIDAYS.has(key)) ? "#c45b5b" : "#403b36";
           ctx.font = "bold 16px sans-serif"; ctx.fillText(String(day), x + 9, y + 22);
           let iy = y + 31;
+          dayExams.slice(0, 3).forEach(exam => {
+            drawExamBadge(ctx, exam, x + 6, iy, cellW - 14);
+            const detail = examDetail(exam);
+            if (detail) { ctx.fillStyle = "#403b36"; ctx.font = "10px sans-serif"; ctx.fillText(detail.slice(0, 24), x + 8, iy + 34); }
+            iy += detail ? 38 : 27;
+          });
           schedules.filter(s => s.date === key).slice(0, 3).forEach(item => {
             const sub = getSubject(item.subject);
             ctx.fillStyle = sub ? sub.color : "#e8e0d6"; roundRect(ctx, x + 6, iy, cellW - 14, 20, 4); ctx.fill();
             ctx.fillStyle = "#403b36"; ctx.font = "11px sans-serif";
             drawWrappedText(ctx, `${item.subject}: ${item.task}`, x + 10, iy + 14, cellW - 22, 1);
             iy += 23;
-          });
-          dayExams.slice(0, 3).forEach(exam => {
-            drawExamBadge(ctx, exam, x + 6, iy, cellW - 14);
-            const detail = examDetail(exam);
-            if (detail) { ctx.fillStyle = "#403b36"; ctx.font = "10px sans-serif"; ctx.fillText(detail.slice(0, 24), x + 8, iy + 34); }
-            iy += detail ? 38 : 27;
           });
         }
         top += block.height + gap;
