@@ -353,7 +353,7 @@
     const STORAGE_KEY = "studyPlannerData_v2";
     // 예전에 저장된 연한 배경색은 새로운 진한 배경색으로 바꿔서 불러온다
     const PAGE_BG_MIGRATE = {"#F7F3ED": "#EDE4D7", "#E8DCCB": "#EDE4D7", "#F3F4F0": "#E4E9DF", "#DCE3D6": "#E4E9DF", "#F7F0F2": "#EFE2E6", "#EBDADF": "#EFE2E6", "#EEF3F7": "#E0E9F0", "#D9E3EC": "#E0E9F0", "#F5F0E6": "#F1EAD7", "#EFE6CF": "#F1EAD7"};
-    const SUBJECT_ALPHA = 0.6; // 달력·이미지 속 과목 색 칩의 불투명도(고정)
+    const SUBJECT_ALPHA = 0.4; // 달력·이미지 속 과목 색 칩의 불투명도(고정)
     const ACCENTS = ["#262626", "#4A4A4A", "#6B6B6B", "#A3A3A3", "#D4D4D4"];
     const emptyData = () => ({
       subjects: [],
@@ -534,7 +534,7 @@
     function dateKeyOf(date) { return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`; }
     function renderCalendar() {
       const year = currentDate.getFullYear(), month = currentDate.getMonth();
-      monthTitle.textContent = `${year}年 ${month + 1}月`;
+      monthTitle.textContent = `${year} - ${String(month + 1).padStart(2, "0")}`;
       calendarGrid.innerHTML = "";
       ["월", "화", "수", "목", "금", "토", "일"].forEach((day, i) => { const heading=document.createElement("div"); heading.className="weekday"; heading.textContent=day; if(i>=5) heading.style.color="#8a8a8a"; calendarGrid.appendChild(heading); });
       const startOffset=(new Date(year,month,1).getDay()+6)%7, lastDate=new Date(year,month+1,0).getDate();
@@ -905,7 +905,7 @@
       const weekdays = ["월", "화", "수", "목", "금", "토", "일"];
       blocks.forEach(block => {
         ctx.fillStyle = "#2b2b2b"; ctx.font = "bold 28px sans-serif";
-        ctx.fillText(`${block.y}년 ${block.mo + 1}월`, margin, top + 30);
+        ctx.fillText(`${block.y} - ${pad2(block.mo + 1)}`, margin, top + 30);
         ctx.font = "bold 15px sans-serif";
         weekdays.forEach((w, i) => { ctx.fillStyle = i >= 5 ? "#8a8a8a" : "#8a8a8a"; ctx.fillText(w, margin + i * cellW + 8, top + titleH - 6); });
         for (let day = block.a; day <= block.b; day++) {
