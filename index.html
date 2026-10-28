@@ -217,7 +217,7 @@
           <label for="exam-date">시험 날짜</label><input type="date" id="exam-date" required>
           <label for="exam-time">시험 시간</label><input type="text" id="exam-time" placeholder="예: 10:00~11:15">
           <label for="exam-scope">시험 범위</label><input type="text" id="exam-scope" placeholder="예: 5장~7장">
-          <label for="exam-memo">메모 (선택)</label><textarea id="exam-memo" rows="2" placeholder="준비물이나 유의사항"></textarea>
+          <label for="exam-memo">메모 (선택)</label><textarea id="exam-memo" rows="2" placeholder="시험정보나 유의사항"></textarea>
           <button type="submit" class="primary-button" id="save-exam">+ 시험 일정 추가</button>
           <button type="button" class="secondary-button" id="cancel-exam-edit" hidden>수정 취소</button>
         </form>
@@ -236,9 +236,9 @@
         <input type="range" id="bg-opacity" min="5" max="100" step="5" value="30">
         <button type="button" class="secondary-button" id="remove-bg-image">배경 이미지 제거</button>
         <button type="button" class="green-button" id="apply-design">디자인 적용</button>
-        <p class="settings-preview">선택한 디자인은 자동 저장돼.</p>
+        <p class="settings-preview">선택한 디자인은 자동 저장.</p>
       </section>
-      <p class="sidebar-note">날짜를 누르면 공부 일정을 추가하거나 수정·삭제할 수 있어. 시험은 ‘시험 일정’ 메뉴에서 관리해 줘.</p>
+      <p class="sidebar-note">날짜를 누르면 공부 일정을 추가하거나 수정·삭제할 수 있음. 시험은 ‘시험 일정’ 메뉴에서 관리.</p>
     </aside>
 
     <main class="main-content">
@@ -349,7 +349,7 @@
           }
         };
       } catch (error) {
-        console.error("저장 데이터를 불러오지 못했어.", error);
+        console.error("저장 데이터를 불러오지 못함.", error);
         return emptyData();
       }
     }
@@ -387,7 +387,7 @@
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ subjects, schedules, exams, design }));
       } catch (error) {
-        alert("저장에 실패했어. 브라우저의 저장 공간 설정을 확인해 줘.");
+        alert("저장 실패. 브라우저의 저장 공간 설정을 확인해 줘.");
         console.error(error);
       }
     }
@@ -505,7 +505,7 @@
     function dateKeyOf(date) { return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`; }
     function renderCalendar() {
       const year = currentDate.getFullYear(), month = currentDate.getMonth();
-      monthTitle.textContent = `${year}년 ${month + 1}월`;
+      monthTitle.textContent = `${year} ${month + 1}월`;
       calendarGrid.innerHTML = "";
       ["월", "화", "수", "목", "금", "토", "일"].forEach((day, i) => { const heading=document.createElement("div"); heading.className="weekday"; heading.textContent=day; if(i>=5) heading.style.color="#c45b5b"; calendarGrid.appendChild(heading); });
       const startOffset=(new Date(year,month,1).getDay()+6)%7, lastDate=new Date(year,month+1,0).getDate();
