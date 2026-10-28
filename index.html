@@ -257,7 +257,7 @@
           <label>이미지 방향<select id="export-orientation"><option value="landscape">가로형</option><option value="portrait">세로형</option></select></label>
           <button type="button" id="export-image">선택한 기간을 PNG로 저장</button>
         </div>
-        <p class="settings-preview">선택한 기간의 주(週)만 월별로 세로로 이어 붙여, 불필요한 여백 없이 PNG로 저장돼.</p>
+        <p class="settings-preview">선택한 기간의 주만 불필요한 여백 없이 PNG로 저장됩니다</p>
       </div>
     </main>
   </div>
@@ -285,7 +285,7 @@
           <button type="submit" id="modal-submit">+ 일정 추가</button>
           <button type="button" class="secondary-button" id="cancel-edit" hidden>수정 취소</button>
         </div>
-        <p class="no-subject-message" id="no-subject-message" hidden>일정을 추가하려면 먼저 과목을 추가해 줘.</p>
+        <p class="no-subject-message" id="no-subject-message" hidden>일정을 추가하려면 먼저 과목을 추가해주세요.</p>
       </form>
       <div class="modal-schedule-list">
         <h3>이 날짜의 일정</h3>
@@ -349,7 +349,7 @@
           }
         };
       } catch (error) {
-        console.error("저장 데이터를 불러오지 못함.", error);
+        console.error("저장 데이터를 불러오지 못했습니다.", error);
         return emptyData();
       }
     }
@@ -387,7 +387,7 @@
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ subjects, schedules, exams, design }));
       } catch (error) {
-        alert("저장 실패. 브라우저의 저장 공간 설정을 확인해 줘.");
+        alert("저장 실패. 브라우저의 저장 공간 설정을 확인해주세요.");
         console.error(error);
       }
     }
@@ -412,12 +412,12 @@
       if (!subjects.length) {
         const message = document.createElement("p");
         message.className = "empty-message";
-        message.textContent = "아직 추가한 과목이 없어.";
+        message.textContent = "아직 추가한 과목이 없습니다";
         subjectList.appendChild(message);
         [modalSubjectSelect, examSubjectSelect, $("modal-exam-subject")].forEach(select => {
           const option = document.createElement("option");
           option.value = "";
-          option.textContent = "과목을 먼저 추가해 줘";
+          option.textContent = "과목을 먼저 추가해주세요";
           select.appendChild(option);
         });
         updateModalFormState();
@@ -461,8 +461,8 @@
       const linkedExams = exams.filter(exam => exam.subject === name);
       const linkedCount = linkedSchedules.length + linkedExams.length;
       const promptText = linkedCount
-        ? `"${name}" 과목과 연결된 공부 일정 ${linkedSchedules.length}개, 시험 ${linkedExams.length}개도 함께 삭제할까?`
-        : `"${name}" 과목을 삭제할까?`;
+        ? `"${name}" 과목과 연결된 공부 일정 ${linkedSchedules.length}개, 시험 ${linkedExams.length}개도 함께 삭제할까요?`
+        : `"${name}" 과목을 삭제할까요?`;
       if (!confirm(promptText)) return;
 
       subjects = subjects.filter(subject => subject.name !== name);
