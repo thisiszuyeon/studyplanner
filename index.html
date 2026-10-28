@@ -183,7 +183,10 @@
     .modal-pane[hidden] { display:none; }
     .modal-exam-meta { margin-top:4px; color:var(--muted); font-size:12px; line-height:1.5; overflow-wrap:anywhere; }
     .day-number.holiday-number { color:#6e6e6e; }
-    .export-options { display:flex; flex-wrap:wrap; align-items:end; gap:10px; margin:12px 0 4px; padding:14px; background:#f7f7f7; border:1px solid var(--border); border-radius:12px; }
+    .subject-select-row { display:flex; align-items:center; gap:8px; }
+    .subject-select-row select { flex:1; }
+    .subject-dot { width:20px; height:20px; flex-shrink:0; border-radius:50%; border:1px solid #cfcfcf; background:transparent; }
+    .export-options { display:flex; flex-wrap:wrap; align-items:end; gap:10px; margin:12px 0 4px; padding:14px; background:rgba(247,247,247,.6); border:1px solid var(--border); border-radius:12px; }
     .export-options label { display:flex; flex-direction:column; gap:5px; font-size:12px; color:var(--muted); }
     .export-options input, .export-options select { min-height:36px; }
     .exam-modal-note { white-space:pre-wrap; overflow-wrap:anywhere; }
@@ -292,7 +295,7 @@
         </div>
         <p class="date-error" id="modal-date-error" hidden>날짜를 확인해 주세요. 예: 2026-11-20</p>
         <label for="modal-subject">과목</label>
-        <select id="modal-subject" required></select>
+        <div class="subject-select-row"><span class="subject-dot" id="modal-subject-dot" aria-hidden="true"></span><select id="modal-subject" required></select></div>
         <label for="modal-task">공부할 내용</label>
         <input type="text" id="modal-task" placeholder="공부할 내용 입력" required>
         <div class="modal-form-actions">
@@ -318,7 +321,7 @@
           </div>
           <p class="date-error" id="modal-exam-date-error" hidden>날짜를 확인해 주세요. 예: 2026-11-20</p>
           <label for="modal-exam-subject">과목</label>
-          <select id="modal-exam-subject" required></select>
+          <div class="subject-select-row"><span class="subject-dot" id="modal-exam-subject-dot" aria-hidden="true"></span><select id="modal-exam-subject" required></select></div>
           <label for="modal-exam-time">시험 시간</label>
           <input type="text" id="modal-exam-time" placeholder="예: 10:00~11:15">
           <label for="modal-exam-scope">시험 범위</label>
@@ -350,6 +353,7 @@
     const STORAGE_KEY = "studyPlannerData_v2";
     // 예전에 저장된 연한 배경색은 새로운 진한 배경색으로 바꿔서 불러온다
     const PAGE_BG_MIGRATE = {"#F7F3ED": "#EDE4D7", "#E8DCCB": "#EDE4D7", "#F3F4F0": "#E4E9DF", "#DCE3D6": "#E4E9DF", "#F7F0F2": "#EFE2E6", "#EBDADF": "#EFE2E6", "#EEF3F7": "#E0E9F0", "#D9E3EC": "#E0E9F0", "#F5F0E6": "#F1EAD7", "#EFE6CF": "#F1EAD7"};
+    const SUBJECT_ALPHA = 0.6; // 달력·이미지 속 과목 색 칩의 불투명도(고정)
     const ACCENTS = ["#262626", "#4A4A4A", "#6B6B6B", "#A3A3A3", "#D4D4D4"];
     const emptyData = () => ({
       subjects: [],
@@ -546,8 +550,8 @@
         if(dow===0||dow===6||HOLIDAYS.has(dateKey)) number.classList.add("holiday-number");
         cell.addEventListener("click",()=>openModal(dateKey)); cell.appendChild(number);
         cell.addEventListener("dragover",e=>{if(!dragItem)return;e.preventDefault();e.dataTransfer.dropEffect="move";cell.classList.add("drag-over");});cell.addEventListener("dragleave",e=>{if(!cell.contains(e.relatedTarget))cell.classList.remove("drag-over");});cell.addEventListener("drop",e=>{e.preventDefault();cell.classList.remove("drag-over");moveItemTo(dateKey);});
-        dayExams.forEach(exam=>{const chip=document.createElement("div");chip.setAttribute("role","button");chip.tabIndex=0;chip.className="exam-chip";chip.textContent=exam.subject;chip.draggable=true;chip.addEventListener("dragstart",e=>startDrag(e,"exams",exam.id));chip.addEventListener("dragend",endDrag);chip.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();e.stopPropagation();openExamDetail(exam.id);}});const subject=getSubject(exam.subject);chip.style.backgroundColor=subject?subject.color:"#e4e4e4";chip.title=`${exam.subject} 시험 정보 보기`;chip.addEventListener("click",e=>{e.stopPropagation();openExamDetail(exam.id);});cell.appendChild(chip);});
-        schedules.filter(schedule=>schedule.date===dateKey).forEach(schedule=>{const chip=document.createElement("div");chip.className="schedule-chip";chip.textContent=schedule.task;chip.draggable=true;chip.addEventListener("dragstart",e=>startDrag(e,"schedules",schedule.id));chip.addEventListener("dragend",endDrag);const subject=getSubject(schedule.subject);if(subject)chip.style.backgroundColor=subject.color;cell.appendChild(chip);});
+        dayExams.forEach(exam=>{const chip=document.createElement("div");chip.setAttribute("role","button");chip.tabIndex=0;chip.className="exam-chip";chip.textContent=exam.subject;chip.draggable=true;chip.addEventListener("dragstart",e=>startDrag(e,"exams",exam.id));chip.addEventListener("dragend",endDrag);chip.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();e.stopPropagation();openExamDetail(exam.id);}});const subject=getSubject(exam.subject);chip.style.backgroundColor=subject?hexToRgba(subject.color,SUBJECT_ALPHA):"#e4e4e4";chip.title=`${exam.subject} 시험 정보 보기`;chip.addEventListener("click",e=>{e.stopPropagation();openExamDetail(exam.id);});cell.appendChild(chip);});
+        schedules.filter(schedule=>schedule.date===dateKey).forEach(schedule=>{const chip=document.createElement("div");chip.className="schedule-chip";chip.textContent=schedule.task;chip.draggable=true;chip.addEventListener("dragstart",e=>startDrag(e,"schedules",schedule.id));chip.addEventListener("dragend",endDrag);const subject=getSubject(schedule.subject);if(subject)chip.style.backgroundColor=hexToRgba(subject.color,SUBJECT_ALPHA);cell.appendChild(chip);});
         calendarGrid.appendChild(cell);
       }
       renderExamList();
@@ -636,7 +640,18 @@
       renderModalExams();
     }
 
+    // 팝업의 과목 선택 옆에 선택한 과목의 색상을 표시
+    function updateSubjectDots() {
+      [["modal-subject", "modal-subject-dot"], ["modal-exam-subject", "modal-exam-subject-dot"]].forEach(([selectId, dotId]) => {
+        const subject = getSubject($(selectId).value);
+        $(dotId).style.backgroundColor = subject ? subject.color : "transparent";
+      });
+    }
+    ["modal-subject", "modal-exam-subject"].forEach(id => $(id).addEventListener("change", updateSubjectDots));
+    ["modal-form", "modal-exam-form"].forEach(id => $(id).addEventListener("reset", () => setTimeout(updateSubjectDots)));
+
     function updateModalFormState() {
+      updateSubjectDots();
       const hasSubjects = subjects.length > 0;
       modalSubjectSelect.disabled = !hasSubjects;
       modalTaskInput.disabled = !hasSubjects;
@@ -724,6 +739,7 @@
     function startEditing(schedule) {
       editingScheduleId = schedule.id;
       modalSubjectSelect.value = schedule.subject;
+      updateSubjectDots();
       modalTaskInput.value = schedule.task;
       modalSubmit.textContent = "수정 내용 저장";
       cancelEditButton.hidden = false;
@@ -821,7 +837,7 @@
 
     // 선택한 기간의 달력을 월별로 세로로 연결해 PNG로 저장
     function drawExamBadge(ctx, exam, x, y, width) {
-      const subject=getSubject(exam.subject); ctx.fillStyle=subject?subject.color:"#e4e4e4"; roundRect(ctx,x,y,width,23,5);ctx.fill();ctx.fillStyle="#2b2b2b";ctx.font="12px sans-serif";drawWrappedText(ctx,exam.subject,x+6,y+15,width-12,1);
+      const subject=getSubject(exam.subject); ctx.fillStyle=subject?hexToRgba(subject.color,SUBJECT_ALPHA):"#e4e4e4"; roundRect(ctx,x,y,width,23,5);ctx.fill();ctx.fillStyle="#2b2b2b";ctx.font="12px sans-serif";drawWrappedText(ctx,exam.subject,x+6,y+15,width-12,1);
     }
     $("export-image").addEventListener("click", () => {
       const startValue = $("export-start").value, endValue = $("export-end").value;
@@ -913,7 +929,7 @@
           });
           schedules.filter(s => s.date === key).slice(0, 3).forEach(item => {
             const sub = getSubject(item.subject);
-            ctx.fillStyle = sub ? sub.color : "#e4e4e4"; roundRect(ctx, x + 6, iy, cellW - 14, 20, 4); ctx.fill();
+            ctx.fillStyle = sub ? hexToRgba(sub.color, SUBJECT_ALPHA) : "#e4e4e4"; roundRect(ctx, x + 6, iy, cellW - 14, 20, 4); ctx.fill();
             ctx.fillStyle = "#2b2b2b"; ctx.font = "11px sans-serif";
             drawWrappedText(ctx, `${item.subject}: ${item.task}`, x + 10, iy + 14, cellW - 22, 1);
             iy += 23;
@@ -1046,6 +1062,7 @@
         edit.addEventListener("click", () => {
           editingModalExamId = exam.id;
           $("modal-exam-subject").value = exam.subject;
+          updateSubjectDots();
           $("modal-exam-time").value = exam.time || "";
           $("modal-exam-scope").value = exam.scope || "";
           $("modal-exam-memo").value = exam.memo || "";
