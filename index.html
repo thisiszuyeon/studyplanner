@@ -257,7 +257,7 @@
           <label>이미지 방향<select id="export-orientation"><option value="landscape">가로형</option><option value="portrait">세로형</option></select></label>
           <button type="button" id="export-image">선택한 기간을 PNG로 저장</button>
         </div>
-        <p class="settings-preview">선택한 기간의 주만 불필요한 여백 없이 PNG로 저장됩니다</p>
+        <p class="settings-preview">선택한 기간만 불필요한 여백 없이 PNG로 저장됩니다</p>
       </div>
     </main>
   </div>
@@ -478,12 +478,12 @@
       const name = subjectNameInput.value.trim();
       const color = subjectColorSelect.value;
       if (!name) {
-        alert("과목 이름을 입력해 줘!");
+        alert("과목 이름을 입력해주세요");
         subjectNameInput.focus();
         return;
       }
       if (getSubject(name)) {
-        alert("이미 추가한 과목이야!");
+        alert("이미 추가한 과목입니다");
         subjectNameInput.focus();
         return;
       }
@@ -842,7 +842,7 @@
     function resetExamForm(){editingExamId=null;examForm.reset();$("exam-form-heading").textContent="시험 일정 추가";$("save-exam").textContent="+ 시험 일정 추가";$("cancel-exam-edit").hidden=true;}
     examForm.addEventListener("submit",event=>{event.preventDefault();if(!subjects.length){alert("먼저 과목을 추가해 주세요");return;}const record={id:editingExamId||createId(),subject:examSubjectSelect.value,date:$("exam-date").value,time:$("exam-time").value.trim(),scope:$("exam-scope").value.trim(),memo:$("exam-memo").value.trim()};if(!record.subject||!record.date)return;if(editingExamId){exams=exams.map(e=>e.id===editingExamId?record:e);}else exams.push(record);saveData();resetExamForm();renderCalendar();});
     $("cancel-exam-edit").addEventListener("click",resetExamForm);
-    function renderExamList(){const list=$("exam-list");if(!list)return;list.innerHTML="";const ordered=[...exams].sort((a,b)=>a.date.localeCompare(b.date));if(!ordered.length){const p=document.createElement("p");p.className="empty-message";p.textContent="등록된 시험이 아직 없어.";list.appendChild(p);return;}ordered.forEach(exam=>{const item=document.createElement("div");item.className="exam-list-item";const strong=document.createElement("strong");strong.textContent=`${exam.date} · ${exam.subject}`;const small=document.createElement("small");small.textContent=[exam.time,exam.scope].filter(Boolean).join(" · ")||"상세 정보 없음";const actions=document.createElement("div");actions.className="exam-list-actions";const view=document.createElement("button");view.type="button";view.className="small-button edit-schedule";view.textContent="상세 보기";view.addEventListener("click",()=>openExamDetail(exam.id));actions.append(view);item.append(strong,small,actions);list.appendChild(item);});}
+    function renderExamList(){const list=$("exam-list");if(!list)return;list.innerHTML="";const ordered=[...exams].sort((a,b)=>a.date.localeCompare(b.date));if(!ordered.length){const p=document.createElement("p");p.className="empty-message";p.textContent="등록된 시험이 아직 없습니다.";list.appendChild(p);return;}ordered.forEach(exam=>{const item=document.createElement("div");item.className="exam-list-item";const strong=document.createElement("strong");strong.textContent=`${exam.date} · ${exam.subject}`;const small=document.createElement("small");small.textContent=[exam.time,exam.scope].filter(Boolean).join(" · ")||"상세 정보 없음";const actions=document.createElement("div");actions.className="exam-list-actions";const view=document.createElement("button");view.type="button";view.className="small-button edit-schedule";view.textContent="상세 보기";view.addEventListener("click",()=>openExamDetail(exam.id));actions.append(view);item.append(strong,small,actions);list.appendChild(item);});}
     function openExamDetail(id){selectedExamId=id;const exam=exams.find(e=>e.id===id);if(!exam)return;$("exam-detail-title").textContent=exam.subject+" 시험";$("exam-detail-date").textContent=exam.date;const content=$("exam-detail-content");content.innerHTML="";[["시험 시간",exam.time], ["시험 범위",exam.scope], ["메모",exam.memo]].forEach(([label,value])=>{if(!value)return;const p=document.createElement("p");const b=document.createElement("strong");b.textContent=label+" · ";p.append(b,document.createTextNode(value));content.appendChild(p);});if(!content.childNodes.length)content.textContent="등록된 상세 정보가 없어.";$("exam-detail-backdrop").hidden=false;}
     function closeExamDetail(){$("exam-detail-backdrop").hidden=true;selectedExamId=null;}
     $("close-exam-detail").addEventListener("click",closeExamDetail);$("exam-detail-backdrop").addEventListener("click",e=>{if(e.target===$("exam-detail-backdrop"))closeExamDetail();});
