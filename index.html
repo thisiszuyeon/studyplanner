@@ -158,6 +158,10 @@
     .schedule-chip[draggable="true"], .exam-chip { cursor:grab; }
     .dragging { opacity:.45; }
     .day.drag-over { outline:2px dashed #7a7a7a; outline-offset:-3px; }
+    .date-fields { display:flex; align-items:center; gap:6px; }
+    .date-fields .date-seg { flex:1 1 0; min-width:0; text-align:center; font-variant-numeric:tabular-nums; letter-spacing:.5px; }
+    .date-fields .date-seg[data-seg="y"] { flex:1.6 1 0; }
+    .date-dash { color:var(--muted); font-weight:600; user-select:none; }
     .date-error { margin:0; color:#2b2b2b; font-size:12px; font-weight:600; }
     .day.exam-day { background:#ececec; border-color:#d6d6d6; }
     /* 캘린더 배경 이미지 (투명도 조절) */
@@ -279,8 +283,14 @@
       </div>
       <div class="modal-pane" id="study-pane">
       <form class="modal-form" id="modal-form">
-        <label for="modal-date-input">날짜 (직접 입력)</label>
-        <input type="text" id="modal-date-input" placeholder="예: 2026-11-20 또는 11/20" autocomplete="off">
+        <label for="modal-date-input-y">날짜 (숫자만 입력)</label>
+        <div class="date-fields" id="modal-date-input" role="group" aria-label="날짜">
+          <input type="text" inputmode="numeric" maxlength="4" class="date-seg" data-seg="y" id="modal-date-input-y" placeholder="YYYY" autocomplete="off" aria-label="연도">
+          <span class="date-dash">-</span>
+          <input type="text" inputmode="numeric" maxlength="2" class="date-seg" data-seg="m" id="modal-date-input-m" placeholder="MM" autocomplete="off" aria-label="월">
+          <span class="date-dash">-</span>
+          <input type="text" inputmode="numeric" maxlength="2" class="date-seg" data-seg="d" id="modal-date-input-d" placeholder="DD" autocomplete="off" aria-label="일">
+        </div>
         <p class="date-error" id="modal-date-error" hidden>날짜를 확인해 주세요. 예: 2026-11-20</p>
         <label for="modal-subject">과목</label>
         <select id="modal-subject" required></select>
@@ -299,8 +309,14 @@
       </div>
       <div class="modal-pane" id="exam-pane" hidden>
         <form class="modal-form" id="modal-exam-form">
-          <label for="modal-exam-date-input">날짜 (직접 입력)</label>
-          <input type="text" id="modal-exam-date-input" placeholder="예: 2026-11-20 또는 11/20" autocomplete="off">
+          <label for="modal-exam-date-input-y">날짜 (숫자만 입력)</label>
+          <div class="date-fields" id="modal-exam-date-input" role="group" aria-label="날짜">
+            <input type="text" inputmode="numeric" maxlength="4" class="date-seg" data-seg="y" id="modal-exam-date-input-y" placeholder="YYYY" autocomplete="off" aria-label="연도">
+            <span class="date-dash">-</span>
+            <input type="text" inputmode="numeric" maxlength="2" class="date-seg" data-seg="m" id="modal-exam-date-input-m" placeholder="MM" autocomplete="off" aria-label="월">
+            <span class="date-dash">-</span>
+            <input type="text" inputmode="numeric" maxlength="2" class="date-seg" data-seg="d" id="modal-exam-date-input-d" placeholder="DD" autocomplete="off" aria-label="일">
+          </div>
           <p class="date-error" id="modal-exam-date-error" hidden>날짜를 확인해 주세요. 예: 2026-11-20</p>
           <label for="modal-exam-subject">과목</label>
           <select id="modal-exam-subject" required></select>
@@ -562,32 +578,56 @@
       if (!backdrop.hidden) { renderModalSchedules(); renderModalExams(); }
     }
 
-    // ===== 날짜 직접 입력 =====
-    function parseTypedDate(text, fallbackYear) {
-      const t = String(text).trim();
-      if (!t) return null;
-      const parts = t.split(/[^0-9]+/).filter(Boolean), digits = t.replace(/\D/g, "");
-      let y, m, d;
-      if (parts.length === 3) { [y, m, d] = parts.map(Number); if (parts[0].length <= 2) y += 2000; }
-      else if (parts.length === 2) { y = fallbackYear; [m, d] = parts.map(Number); }
-      else if (parts.length === 1 && digits.length === 8) { y = +digits.slice(0, 4); m = +digits.slice(4, 6); d = +digits.slice(6, 8); }
-      else if (parts.length === 1 && digits.length === 4) { y = fallbackYear; m = +digits.slice(0, 2); d = +digits.slice(2, 4); }
-      else return null;
-      if (y < 1900 || y > 2100) return null;
-      const dt = new Date(y, m - 1, d);
-      if (dt.getFullYear() !== y || dt.getMonth() !== m - 1 || dt.getDate() !== d) return null;
-      return dateKeyOf(dt);
+    // ===== 날짜 직접 입력 (YYYY - MM - DD 형식 고정, 숫자만 입력) =====
+    const dateSegs = (cid) => [...$(cid).querySelectorAll(".date-seg")];
+    function setDateFields(cid, key) {
+      const [y, m, d] = (key || "--").split("-");
+      const segs = dateSegs(cid);
+      segs[0].value = y || ""; segs[1].value = m || ""; segs[2].value = d || "";
     }
     function syncDateInputs() {
-      ["modal-date-input", "modal-exam-date-input"].forEach(id => { $(id).value = selectedDate; });
+      setDateFields("modal-date-input", selectedDate);
+      setDateFields("modal-exam-date-input", selectedDate);
       ["modal-date-error", "modal-exam-date-error"].forEach(id => { $(id).hidden = true; });
     }
-    function readDateInput(inputId, errorId) {
-      const key = parseTypedDate($(inputId).value, Number(selectedDate.slice(0, 4)));
-      $(errorId).hidden = !!key;
-      if (!key) $(inputId).focus();
-      return key;
+    function readDateInput(cid, errorId) {
+      const segs = dateSegs(cid), [y, m, d] = segs.map(x => Number(x.value));
+      const valid = segs[0].value.length === 4 && segs[1].value && segs[2].value && y >= 1900 && y <= 2100;
+      const dt = new Date(y, m - 1, d);
+      const ok = valid && dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d;
+      $(errorId).hidden = ok;
+      if (!ok) { (segs.find(x => !x.value) || segs[0]).focus(); return null; }
+      return dateKeyOf(dt);
     }
+    function wireDateFields(cid) {
+      const segs = dateSegs(cid), limits = { y: 4, m: 2, d: 2 };
+      segs.forEach((input, i) => {
+        const seg = input.dataset.seg;
+        input.addEventListener("focus", () => input.select());
+        input.addEventListener("input", () => {
+          input.value = input.value.replace(/\D/g, "").slice(0, limits[seg]);
+          let full = input.value.length === limits[seg];
+          // 월·일은 첫 숫자가 너무 크면 0을 붙여 바로 다음 칸으로
+          if (!full && seg === "m" && Number(input.value) > 1) { input.value = "0" + input.value; full = true; }
+          if (!full && seg === "d" && Number(input.value) > 3) { input.value = "0" + input.value; full = true; }
+          if (full && segs[i + 1]) segs[i + 1].focus();
+        });
+        input.addEventListener("blur", () => { if (seg !== "y" && input.value.length === 1) input.value = "0" + input.value; });
+        input.addEventListener("keydown", e => {
+          if (e.key === "Backspace" && !input.value && segs[i - 1]) { e.preventDefault(); segs[i - 1].focus(); }
+          else if (e.key === "ArrowLeft" && input.selectionStart === 0 && segs[i - 1]) { e.preventDefault(); segs[i - 1].focus(); }
+          else if (e.key === "ArrowRight" && input.selectionStart === input.value.length && segs[i + 1]) { e.preventDefault(); segs[i + 1].focus(); }
+        });
+        // 2026-11-20 같은 날짜를 붙여넣으면 세 칸에 나눠 채움
+        input.addEventListener("paste", e => {
+          const digits = (e.clipboardData.getData("text") || "").replace(/\D/g, "");
+          if (digits.length === 8) { e.preventDefault(); segs[0].value = digits.slice(0, 4); segs[1].value = digits.slice(4, 6); segs[2].value = digits.slice(6, 8); segs[2].focus(); }
+        });
+      });
+    }
+    wireDateFields("modal-date-input");
+    wireDateFields("modal-exam-date-input");
+
     function goToDate(date) {
       selectedDate = date;
       modalDate.textContent = date.replaceAll("-", ".");
