@@ -625,7 +625,7 @@
       if (!daySchedules.length) {
         const message = document.createElement("p");
         message.className = "empty-message";
-        message.textContent = "아직 등록된 일정이 없어.";
+        message.textContent = "아직 등록된 일정이 없습니다";
         modalSchedules.appendChild(message);
         return;
       }
@@ -666,7 +666,7 @@
         deleteButton.className = "small-button delete-schedule";
         deleteButton.textContent = "삭제";
         deleteButton.addEventListener("click", () => {
-          if (!confirm("이 일정을 삭제할까?")) return;
+          if (!confirm("이 일정을 삭제할까요?")) return;
           schedules = schedules.filter(item => item.id !== schedule.id);
           if (editingScheduleId === schedule.id) cancelEditing();
           saveData();
@@ -711,9 +711,9 @@
     }
     $("export-image").addEventListener("click", () => {
       const startValue = $("export-start").value, endValue = $("export-end").value;
-      if (!startValue || !endValue) { alert("시작 날짜와 종료 날짜를 모두 선택해 줘!"); return; }
+      if (!startValue || !endValue) { alert("시작 날짜와 종료 날짜를 모두 선택하세요"); return; }
       const startDate = new Date(startValue + "T12:00:00"), endDate = new Date(endValue + "T12:00:00");
-      if (startDate > endDate) { alert("종료 날짜는 시작 날짜와 같거나 뒤여야 해."); return; }
+      if (startDate > endDate) { alert("종료 날짜는 시작 날짜와 같거나 뒤여야 합니다."); return; }
 
       const orientation = $("export-orientation").value;
       const width = orientation === "landscape" ? 1600 : 1100;
@@ -840,14 +840,14 @@
     // 왼쪽 메뉴 전환
     document.querySelectorAll(".nav-button").forEach(button=>button.addEventListener("click",()=>{document.querySelectorAll(".nav-button").forEach(b=>b.classList.toggle("active",b===button));document.querySelectorAll(".side-panel").forEach(panel=>panel.hidden=panel.id!==button.dataset.panel);}));
     function resetExamForm(){editingExamId=null;examForm.reset();$("exam-form-heading").textContent="시험 일정 추가";$("save-exam").textContent="+ 시험 일정 추가";$("cancel-exam-edit").hidden=true;}
-    examForm.addEventListener("submit",event=>{event.preventDefault();if(!subjects.length){alert("먼저 과목을 추가해 줘!");return;}const record={id:editingExamId||createId(),subject:examSubjectSelect.value,date:$("exam-date").value,time:$("exam-time").value.trim(),scope:$("exam-scope").value.trim(),memo:$("exam-memo").value.trim()};if(!record.subject||!record.date)return;if(editingExamId){exams=exams.map(e=>e.id===editingExamId?record:e);}else exams.push(record);saveData();resetExamForm();renderCalendar();});
+    examForm.addEventListener("submit",event=>{event.preventDefault();if(!subjects.length){alert("먼저 과목을 추가해 주세요");return;}const record={id:editingExamId||createId(),subject:examSubjectSelect.value,date:$("exam-date").value,time:$("exam-time").value.trim(),scope:$("exam-scope").value.trim(),memo:$("exam-memo").value.trim()};if(!record.subject||!record.date)return;if(editingExamId){exams=exams.map(e=>e.id===editingExamId?record:e);}else exams.push(record);saveData();resetExamForm();renderCalendar();});
     $("cancel-exam-edit").addEventListener("click",resetExamForm);
     function renderExamList(){const list=$("exam-list");if(!list)return;list.innerHTML="";const ordered=[...exams].sort((a,b)=>a.date.localeCompare(b.date));if(!ordered.length){const p=document.createElement("p");p.className="empty-message";p.textContent="등록된 시험이 아직 없어.";list.appendChild(p);return;}ordered.forEach(exam=>{const item=document.createElement("div");item.className="exam-list-item";const strong=document.createElement("strong");strong.textContent=`${exam.date} · ${exam.subject}`;const small=document.createElement("small");small.textContent=[exam.time,exam.scope].filter(Boolean).join(" · ")||"상세 정보 없음";const actions=document.createElement("div");actions.className="exam-list-actions";const view=document.createElement("button");view.type="button";view.className="small-button edit-schedule";view.textContent="상세 보기";view.addEventListener("click",()=>openExamDetail(exam.id));actions.append(view);item.append(strong,small,actions);list.appendChild(item);});}
     function openExamDetail(id){selectedExamId=id;const exam=exams.find(e=>e.id===id);if(!exam)return;$("exam-detail-title").textContent=exam.subject+" 시험";$("exam-detail-date").textContent=exam.date;const content=$("exam-detail-content");content.innerHTML="";[["시험 시간",exam.time], ["시험 범위",exam.scope], ["메모",exam.memo]].forEach(([label,value])=>{if(!value)return;const p=document.createElement("p");const b=document.createElement("strong");b.textContent=label+" · ";p.append(b,document.createTextNode(value));content.appendChild(p);});if(!content.childNodes.length)content.textContent="등록된 상세 정보가 없어.";$("exam-detail-backdrop").hidden=false;}
     function closeExamDetail(){$("exam-detail-backdrop").hidden=true;selectedExamId=null;}
     $("close-exam-detail").addEventListener("click",closeExamDetail);$("exam-detail-backdrop").addEventListener("click",e=>{if(e.target===$("exam-detail-backdrop"))closeExamDetail();});
     $("edit-exam-detail").addEventListener("click",()=>{const exam=exams.find(e=>e.id===selectedExamId);if(!exam)return;closeExamDetail();document.querySelector('[data-panel="exams-panel"]').click();editingExamId=exam.id;examSubjectSelect.value=exam.subject;$("exam-date").value=exam.date;$("exam-time").value=exam.time||"";$("exam-scope").value=exam.scope||"";$("exam-memo").value=exam.memo||"";$("exam-form-heading").textContent="시험 일정 수정";$("save-exam").textContent="수정 내용 저장";$("cancel-exam-edit").hidden=false;});
-    $("delete-exam-detail").addEventListener("click",()=>{if(!selectedExamId||!confirm("이 시험 일정을 삭제할까?"))return;exams=exams.filter(e=>e.id!==selectedExamId);saveData();closeExamDetail();renderCalendar();});
+    $("delete-exam-detail").addEventListener("click",()=>{if(!selectedExamId||!confirm("이 시험 일정을 삭제할까요?"))return;exams=exams.filter(e=>e.id!==selectedExamId);saveData();closeExamDetail();renderCalendar();});
     // ===== 날짜 팝업: 시험 일정 체크 / 추가 / 수정 / 삭제 =====
     let editingModalExamId = null;
     function setModalTab(tab) {
@@ -893,7 +893,7 @@
       if (!dayExams.length) {
         const message = document.createElement("p");
         message.className = "empty-message";
-        message.textContent = "이 날짜에는 등록된 시험이 없어.";
+        message.textContent = "이 날짜에는 등록된 시험이 없습니다";
         box.appendChild(message);
         return;
       }
@@ -938,7 +938,7 @@
         del.className = "small-button delete-schedule";
         del.textContent = "삭제";
         del.addEventListener("click", () => {
-          if (!confirm("이 시험 일정을 삭제할까?")) return;
+          if (!confirm("이 시험 일정을 삭제할까요?")) return;
           exams = exams.filter(e => e.id !== exam.id);
           if (editingModalExamId === exam.id) resetModalExamForm();
           saveData();
@@ -972,7 +972,7 @@
     $("bg-image-file").addEventListener("change", event => {
       const input = event.target, file = input.files[0];
       if (!file) return;
-      if (!file.type.startsWith("image/")) { alert("이미지 파일을 선택해 줘!"); input.value = ""; return; }
+      if (!file.type.startsWith("image/")) { alert("이미지 파일을 선택해주세요"); input.value = ""; return; }
       const reader = new FileReader();
       reader.onload = () => {
         const img = new Image();
@@ -990,7 +990,7 @@
           applyBackgroundImage();
           input.value = "";
         };
-        img.onerror = () => alert("이미지를 불러오지 못했어.");
+        img.onerror = () => alert("이미지를 불러오지 못했습니다.");
         img.src = reader.result;
       };
       reader.readAsDataURL(file);
