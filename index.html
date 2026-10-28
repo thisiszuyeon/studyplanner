@@ -6,7 +6,7 @@
   <title>Study Planner</title>
   <style>
     :root {
-      --page-bg: #f7f3ed;
+      --page-bg: #e8dccb;
       --card-bg: #ffffff;
       --text: #2b2b2b;
       --muted: #8a8a8a;
@@ -163,7 +163,7 @@
     .date-fields .date-seg[data-seg="y"] { flex:1.6 1 0; }
     .date-dash { color:var(--muted); font-weight:600; user-select:none; }
     .date-error { margin:0; color:#2b2b2b; font-size:12px; font-weight:600; }
-    .day.exam-day { background:#ececec; border-color:#d6d6d6; }
+    .day.exam-day { background:var(--page-bg); border-color:#d6d6d6; }
     /* 캘린더 배경 이미지 (투명도 조절) */
     .calendar-card { position:relative; overflow:hidden; }
     .calendar-card::before {
@@ -173,7 +173,7 @@
     }
     .calendar-card > * { position:relative; z-index:1; }
     .calendar-card.has-bg .day { background:rgba(255,255,255,.6); }
-    .calendar-card.has-bg .day.exam-day { background:rgba(236,236,236,.9); }
+    .calendar-card.has-bg .day.exam-day { background:color-mix(in srgb, var(--page-bg) 90%, transparent); }
     .settings-form input[type="range"] { padding:0; }
     .settings-form input[type="file"] { padding:8px; }
     /* 날짜 팝업 탭 */
@@ -182,7 +182,7 @@
     .modal-tab.active { background:var(--accent); color:var(--accent-text); }
     .modal-pane[hidden] { display:none; }
     .modal-exam-meta { margin-top:4px; color:var(--muted); font-size:12px; line-height:1.5; overflow-wrap:anywhere; }
-    .day-number.holiday-number { color:#8a8a8a; }
+    .day-number.holiday-number { color:#6e6e6e; }
     .export-options { display:flex; flex-wrap:wrap; align-items:end; gap:10px; margin:12px 0 4px; padding:14px; background:#f7f7f7; border:1px solid var(--border); border-radius:12px; }
     .export-options label { display:flex; flex-direction:column; gap:5px; font-size:12px; color:var(--muted); }
     .export-options input, .export-options select { min-height:36px; }
@@ -233,7 +233,7 @@
       <section class="side-panel settings-form" id="design-panel" hidden>
         <h3>디자인 설정</h3>
         <label for="page-bg">배경 색상</label>
-        <select id="page-bg"><option value="#F7F3ED">웜 베이지</option><option value="#F3F4F0">세이지 화이트</option><option value="#F7F0F2">로즈 화이트</option><option value="#EEF3F7">쿨 블루</option><option value="#F5F0E6">크림</option></select>
+        <select id="page-bg"><option value="#E8DCCB">웜 베이지</option><option value="#DCE3D6">세이지 화이트</option><option value="#EBDADF">로즈 화이트</option><option value="#D9E3EC">쿨 블루</option><option value="#EFE6CF">크림</option></select>
         <label for="accent-color">강조 색상</label>
         <select id="accent-color"><option value="#262626">블랙</option><option value="#4A4A4A">차콜</option><option value="#6B6B6B">그래파이트</option><option value="#A3A3A3">스톤</option><option value="#D4D4D4">라이트 그레이</option></select>
         <label for="bg-image-file">캘린더 배경 이미지</label>
@@ -349,12 +349,14 @@
 
   <script>
     const STORAGE_KEY = "studyPlannerData_v2";
+    // 예전에 저장된 연한 배경색은 새로운 진한 배경색으로 바꿔서 불러온다
+    const PAGE_BG_MIGRATE = {"#F7F3ED":"#E8DCCB","#F3F4F0":"#DCE3D6","#F7F0F2":"#EBDADF","#EEF3F7":"#D9E3EC","#F5F0E6":"#EFE6CF"};
     const ACCENTS = ["#262626", "#4A4A4A", "#6B6B6B", "#A3A3A3", "#D4D4D4"];
     const emptyData = () => ({
       subjects: [],
       schedules: [],
       exams: [],
-      design: { pageBg: "#F7F3ED", accent: "#4A4A4A", bgImage: "", bgOpacity: 30 }
+      design: { pageBg: "#E8DCCB", accent: "#4A4A4A", bgImage: "", bgOpacity: 30 }
     });
 
     function loadData() {
@@ -367,7 +369,7 @@
           schedules: Array.isArray(data.schedules) ? data.schedules : [],
           exams: Array.isArray(data.exams) ? data.exams : [],
           design: {
-            pageBg: data.design?.pageBg || "#F7F3ED",
+            pageBg: PAGE_BG_MIGRATE[String(data.design?.pageBg).toUpperCase()] || data.design?.pageBg || "#E8DCCB",
             accent: ACCENTS.includes(String(data.design?.accent).toUpperCase()) ? String(data.design.accent).toUpperCase() : "#4A4A4A",
             bgImage: data.design?.bgImage || "",
             bgOpacity: data.design?.bgOpacity ?? 30
@@ -874,7 +876,7 @@
       ctx.scale(scale, scale);
 
       const hasBg = !!(design.bgImage && bgImg && bgImg.complete && bgImg.naturalWidth);
-      ctx.fillStyle = design.pageBg || "#F7F3ED"; ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = design.pageBg || "#E8DCCB"; ctx.fillRect(0, 0, width, height);
       ctx.fillStyle = "#ffffff"; roundRect(ctx, frame, frame, width - frame * 2, height - frame * 2, 18); ctx.fill();
       if (hasBg) {
         const bw = width - frame * 2, bh = height - frame * 2;
@@ -900,11 +902,11 @@
           const x = margin + col * cellW, y = top + titleH + weekdayH + block.rowTops[r];
           const key = keyOf(block.y, block.mo, day);
           const dayExams = exams.filter(e => e.date === key);
-          ctx.fillStyle = dayExams.length ? (hasBg ? "rgba(236,236,236,.9)" : "#ececec") : (hasBg ? "rgba(255,255,255,.6)" : "#ffffff");
+          ctx.fillStyle = dayExams.length ? (hasBg ? hexToRgba(design.pageBg, 0.9) : design.pageBg) : (hasBg ? "rgba(255,255,255,.6)" : "#ffffff");
           roundRect(ctx, x + 2, y + 2, cellW - 5, rowH - 5, 7); ctx.fill();
           ctx.strokeStyle = dayExams.length ? "#d6d6d6" : "#e4e4e4"; ctx.stroke();
           const dow = new Date(block.y, block.mo, day).getDay();
-          ctx.fillStyle = (dow === 0 || dow === 6 || HOLIDAYS.has(key)) ? "#8a8a8a" : "#2b2b2b";
+          ctx.fillStyle = (dow === 0 || dow === 6 || HOLIDAYS.has(key)) ? "#6e6e6e" : "#2b2b2b";
           ctx.font = "bold 16px sans-serif"; ctx.fillText(String(day), x + 9, y + 22);
           let iy = y + 31;
           dayExams.slice(0, 3).forEach(exam => {
@@ -929,6 +931,10 @@
       link.click();
     });
 
+    function hexToRgba(hex, alpha) {
+      const h = String(hex).replace("#", "");
+      return `rgba(${parseInt(h.slice(0, 2), 16)}, ${parseInt(h.slice(2, 4), 16)}, ${parseInt(h.slice(4, 6), 16)}, ${alpha})`;
+    }
     function roundRect(ctx, x, y, width, height, radius) {
       ctx.beginPath();
       ctx.moveTo(x + radius, y);
