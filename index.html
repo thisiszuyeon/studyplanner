@@ -187,8 +187,8 @@
 <body>
   <div class="planner">
     <aside class="sidebar">
-      <h1>Study Planner</h1>
-      <p class="subtitle">Your own study calendar</p>
+      <h1>Study Plan Calendar</h1>
+      <p class="subtitle">You can design your own study planner</p>
 
       <nav class="sidebar-nav" aria-label="설정 메뉴">
         <button type="button" class="nav-button active" data-panel="subjects-panel">과목 관리</button>
@@ -238,7 +238,7 @@
         <button type="button" class="green-button" id="apply-design">디자인 적용</button>
         <p class="settings-preview">선택한 디자인은 자동 저장.</p>
       </section>
-      <p class="sidebar-note">날짜를 누르면 공부 일정을 추가하거나 수정·삭제할 수 있음. 시험은 ‘시험 일정’ 메뉴에서 관리.</p>
+      <p class="sidebar-note">날짜를 누르면 공부 일정을 추가하거나 수정·삭제할 수 있습니다. 시험은 ‘시험 일정’ 메뉴에서 관리.</p>
     </aside>
 
     <main class="main-content">
@@ -505,7 +505,7 @@
     function dateKeyOf(date) { return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`; }
     function renderCalendar() {
       const year = currentDate.getFullYear(), month = currentDate.getMonth();
-      monthTitle.textContent = `${year} ${month + 1}월`;
+      monthTitle.textContent = `${year}年 ${month + 1}月`;
       calendarGrid.innerHTML = "";
       ["월", "화", "수", "목", "금", "토", "일"].forEach((day, i) => { const heading=document.createElement("div"); heading.className="weekday"; heading.textContent=day; if(i>=5) heading.style.color="#c45b5b"; calendarGrid.appendChild(heading); });
       const startOffset=(new Date(year,month,1).getDay()+6)%7, lastDate=new Date(year,month+1,0).getDate();
